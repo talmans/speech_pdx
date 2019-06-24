@@ -69,12 +69,16 @@ def keras_network(train_data, train_labels, test_data, test_labels, batch):
     classifier.add(MaxPooling2D(pool_size=(2, 2)))
     '''
 
+    # added layer
+    classifier.add(Convolution2D(128, (3, 3), activation=CFG.ACTIVATE_FN[1]))
+    classifier.add(MaxPooling2D(pool_size=(2, 2)))
+
     # layer
     classifier.add(Flatten())
-    classifier.add(Dense(output_dim=128, activation=CFG.ACTIVATE_FN[1]))
+    classifier.add(Dense(activation=CFG.ACTIVATE_FN[2], units=128))
 
     # output layer
-    classifier.add(Dense(output_dim=CFG.TOTAL_LABELS, activation=CFG.ACTIVATE_FN[2]))
+    classifier.add(Dense(activation=CFG.ACTIVATE_FN[3], units=CFG.TOTAL_LABELS))
 
     # compile model
     print(f'compile model')
@@ -163,6 +167,10 @@ def load_data() -> ((), ()):
         datagen = DataGen()
         datagen.reduce_audio_images()
 
+    row = CFG.ROW
+    col = CFG.COL
+    depth = CFG.DEPTH
+
     if CFG.MNIST_DATA:
         # use MNIST data
         # test data shape: (10000, 28, 28), labels: (10000, )
@@ -171,7 +179,7 @@ def load_data() -> ((), ()):
         (train_data, train_labels), (test_data, test_labels) = mnist.load_data()
     else:
         # use custom data
-        (train_data, train_labels), (test_data, test_labels) = custom_load()
+        (train_data, train_labels), (test_data, test_labels), row, col, depth = custom_load()
 
     print(f'training_data: {train_data}')
     print(f'training_labels: {train_labels}')
@@ -181,8 +189,8 @@ def load_data() -> ((), ()):
     test_data = test_data.astype('float32') / 255
 
     # resize to work with tensorflow
-    training_data = train_data.reshape(train_data.shape[0], CFG.ROW, CFG.COL, CFG.DEPTH)
-    testing_data = test_data.reshape(test_data.shape[0], CFG.ROW, CFG.COL, CFG.DEPTH)
+    training_data = train_data.reshape(train_data.shape[0], row, col, depth)
+    testing_data = test_data.reshape(test_data.shape[0], row, col, depth)
 
     total_classes = CFG.TOTAL_LABELS
     training_labels = to_categorical(train_labels, total_classes)
@@ -191,11 +199,11 @@ def load_data() -> ((), ()):
     return (training_data, training_labels), (testing_data, test_labels)
 
 
-def custom_load() -> ((), ()):
+def custom_load() -> ((), (), int, int, int):
     """
     Manually loads custom data and preprocesses the data into training data and
     testing data
-    :return: lists of training data and testing data
+    :return: lists of training data and testing data, and original image row, column and depth
     """
     images = os.listdir(CFG.REDUCED_DIR)
     image_rgb = []
@@ -206,12 +214,15 @@ def custom_load() -> ((), ()):
         img_sample = os.path.join(CFG.REDUCED_DIR, img)
 
         if os.path.isfile(img_sample):
-            rgb_img = cv2.imread(img_sample, cv2.IMREAD_COLOR).reshape(1, 2352)
+            rgb_img = cv2.imread(img_sample, cv2.IMREAD_COLOR)
+            row, col, depth = rgb_img.shape
+            array_size = row * col * depth
+            rgb_img.reshape(1, array_size)
             image_labels.append(label(img))
             image_rgb.append(rgb_img)
 
     rows = len(image_rgb)
-    total_images = np.asarray(image_rgb).reshape((rows, 2352))
+    total_images = np.asarray(image_rgb).reshape((rows, array_size))
     total_labels = np.asarray(image_labels).reshape((rows, 1))
 
     # create full dataframe with labels
@@ -235,8 +246,11 @@ def custom_load() -> ((), ()):
 
     # TODO: handle if split = 0
 
+    print(f'row: {row}, col: {col}, depth: {depth}')
     print(f'training_data: {training_data[:, :-1]}, training_labels {training_data[:, -1:].ravel()}')
-    return (training_data[:, :-1], training_data[:, -1:].ravel()), (test_data[:, :-1], test_data[:, -1:].ravel())
+    return (training_data[:, :-1], training_data[:, -1:].ravel()), \
+           (test_data[:, :-1], test_data[:, -1:].ravel()), \
+           row, col, depth
 
 
 def label(filename: str) -> int:

@@ -36,8 +36,8 @@ class DataGen:
 
                 # plot reduced image
                 plt.plot(time, audio, 'blue', alpha=1)
-                plt.ylim([-20000, 20000])
-                plt.xlim([0, 2])
+                plt.ylim([-15000, 15000])
+                plt.xlim([0.5, 2])
                 plt.savefig(CFG.REDUCED_DIR + file[:-4] + 'r')
 
                 # uncomment to view all images

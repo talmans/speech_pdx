@@ -31,12 +31,14 @@ class Graph:
         self.tr_accuracy = tr_accuracy.ravel()
         self.last_epoch = str(int(self.tr_accuracy[CFG.EPOCHS - 1]))
         self.last_epoch_per = self.tr_accuracy[CFG.EPOCHS - 1]
-        self.tr_last_epoch_str = "{:.2f}".format(self.tr_accuracy[CFG.EPOCHS - 1])
+        self.tr_mean = np.mean(self.tr_accuracy[-(CFG.EPOCHS - 10):])
+        self.tr_mean_str = "{:.2f}".format(self.tr_mean)
 
         self.test_accuracy = test_accuracy.ravel()
         self.last_epoch = str(int(self.test_accuracy[CFG.EPOCHS - 1]))
         self.last_epoch_per = self.test_accuracy[CFG.EPOCHS - 1]
-        self.test_last_epoch_str = "{:.2f}".format(self.test_accuracy[CFG.EPOCHS - 1])
+        self.test_mean = np.mean(self.test_accuracy[-(CFG.EPOCHS - 10):])
+        self.test_mean_str = "{:.2f}".format(self.test_mean)
 
         # hyperparameters and string equivalents (for formatting easily in overleaf)
         self.function_name = function_name
@@ -63,7 +65,7 @@ class Graph:
             title = self.title + \
                     '\n' + self.function_name + ", " + \
                     'mini-batch size: ' + str(self.batch_size) + \
-                    '\nLast Epoch: Training ' + self.tr_last_epoch_str + '%, Testing ' + self.test_last_epoch_str + '%'
+                    '\nAvg Last 10 Epochs: Training ' + self.tr_mean_str + '%, Testing ' + self.test_mean_str + '%'
         else:
             img_title = str(self.experiment_count) + '_cost_plot_' + img_title
             title = cost_title
@@ -87,6 +89,8 @@ class Graph:
         print(f'x: {x}')
         print(f'training: {self.tr_accuracy}')
         print(f'test: {self.test_accuracy}')
+
+        plt.figure(figsize=(CFG.FIG_WIDTH, CFG.FIG_HEIGHT))
 
         # Create the lineplot
         for line in range(2):
@@ -116,7 +120,7 @@ class Graph:
                    ylabel='Accuracy (%)',
                    title=plot_title,
                    xlim=(1, CFG.EPOCHS),
-                   ylim=(0, 100))
+                   ylim=(0, 102))
 
         ax.legend(loc='best')
 
@@ -144,8 +148,9 @@ class Graph:
         print(f'y: {y}')
         max_y1 = np.amax(y[0]) + 0.1
         max_y2 = np.amax(y[1]) + 0.1
-
         max_y = max(max_y1, max_y2)
+
+        plt.figure(figsize=(CFG.FIG_WIDTH, CFG.FIG_HEIGHT))
 
         # Create the lineplot
         for line in range(2):
@@ -229,8 +234,8 @@ class Graph:
         f = open(self.tablefile, 'a')
         f.write(self.pretty_string(self.function_name))
         f.write(self.pretty_string(str(self.batch_size)))
-        f.write(self.pretty_string(self.tr_last_epoch_str))
-        f.write(self.pretty_string(self.test_last_epoch_str, True))
+        f.write(self.pretty_string(self.tr_mean_str))
+        f.write(self.pretty_string(self.test_mean_str, True))
         f.write('\n')
         f.close()
 
