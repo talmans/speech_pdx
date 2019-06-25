@@ -9,12 +9,12 @@ import config as CFG
 class DataGen:
 
     def __init__(self):
-        self.working_dir = 'numbers1/'
+        self.working_dir = CFG.AUDIO_SOURCE
         self.orig_wavfiles = os.listdir(self.working_dir)
 
-    def reduce_audio_images(self):
+    def convert_audio_into_images(self):
         """
-        Converts audio samples into images and reduces them based on configuration values
+        Converts audio samples into images
         """
         for count, file in enumerate(self.orig_wavfiles):
 

@@ -64,12 +64,6 @@ def keras_network(train_data, train_labels, test_data, test_labels, batch):
         classifier.add(Dropout(0.2))
 
     # added layer
-    '''
-    classifier.add(Convolution2D(64, (3, 3), activation=CFG.ACTIVATE_FN[1]))
-    classifier.add(MaxPooling2D(pool_size=(2, 2)))
-    '''
-
-    # added layer
     classifier.add(Convolution2D(128, (3, 3), activation=CFG.ACTIVATE_FN[1]))
     classifier.add(MaxPooling2D(pool_size=(2, 2)))
 
@@ -156,16 +150,16 @@ def visualization(count, training_size, training_accuracy, training_cost, test_s
     if CFG.PLOT_COST:
         graph.plot_cost(training_cost.ravel(), test_cost.ravel())
 
+
 def load_data() -> ((), ()):
     """
     Loads images of from defined dataset
     :return: lists of training data and testing data
     """
-
-    # generate reduced images
-    if CFG.GENERATE_REDUCED_IMAGES:
+    # generate images from wavfiles
+    if CFG.CONVERT_AUDIO:
         datagen = DataGen()
-        datagen.reduce_audio_images()
+        datagen.convert_audio_into_images()
 
     row = CFG.ROW
     col = CFG.COL
@@ -205,17 +199,31 @@ def custom_load() -> ((), (), int, int, int):
     testing data
     :return: lists of training data and testing data, and original image row, column and depth
     """
-    images = os.listdir(CFG.REDUCED_DIR)
+    images = os.listdir(CFG.DATA_SOURCE)
     image_rgb = []
     image_labels = []
 
     for count, img in enumerate(images):
 
-        img_sample = os.path.join(CFG.REDUCED_DIR, img)
+        img_sample = os.path.join(CFG.DATA_SOURCE, img)
 
         if os.path.isfile(img_sample):
             rgb_img = cv2.imread(img_sample, cv2.IMREAD_COLOR)
+
+            if CFG.GENERATE_RESIZED_IMAGES:
+                # resource for resizing images with cv2 while maintaining aspect ratio
+                # https://www.tutorialkart.com/opencv/python/opencv-python-resize-image/
+                width = int(rgb_img.shape[1] * CFG.SCALE_PERCENT)
+                height = int(rgb_img.shape[0] * CFG.SCALE_PERCENT)
+                rgb_img = cv2.resize(rgb_img, (width, height), interpolation=cv2.INTER_AREA)
+
+            # Save a sample resized image
+            if count == 0:
+                cv2.imwrite('resized_sample.png', rgb_img)
+
             row, col, depth = rgb_img.shape
+            print(f'REDUCED IMAGE SHAPE:')
+            print(f'row: {row}, col: {col}, depth: {depth}')
             array_size = row * col * depth
             rgb_img.reshape(1, array_size)
             image_labels.append(label(img))
