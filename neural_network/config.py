@@ -11,7 +11,27 @@ else:
     EPOCHS = 50
     TRAIN_PERCENT = .80
 
-# Hyperparameters
+# Directories and Files
+PATH = getcwd()
+GRAPHS_DIR = PATH + '/accuracy_graphs/'  # directory for storing accuracy graphs
+REDUCED_DIR = PATH + '/reduced_images/'  # directory for storing reduced images
+
+# Image Sources and Processing Specs
+TOMS_DATA = 'toms_graphs/'
+VIRA_ENV = 'envel08/'
+VIRA_SPECT = 'spec08/'
+NUM1 = 'numbers1'
+NUM2 = 'numbers2'
+DATA_SOURCE = PATH + '/image_data/' + TOMS_DATA     # select directory for grabbing data from
+GENERATE_RESIZED_IMAGES = True      # rescale the images
+SCALE_PERCENT = .6                  # scale image while maintaining aspect ratio
+
+# Datagen Audio Conversion Specs
+AUDIO_SOURCE = 'numbers1/'          # select directory with audio data
+CONVERT_AUDIO = False               # if True, convert provided wavfiles over to images, otherwise, no conversion occurs
+REDUCE_DIM = 2                      # figure size for audio-to-image data
+
+# NN Hyperparameters
 ETA = 0.001
 BETA1 = 0.9
 BETA2 = 0.999
@@ -19,10 +39,6 @@ DROPOUT = False
 DROP_VAL = 0.3
 BATCH_SIZE = 28
 ACTIVATE_FN = ["relu", "relu", "relu", "softmax"]
-
-# DataGen Image Specs
-GENERATE_REDUCED_IMAGES = False
-REDUCE_DIM = 2
 
 # NN Image Specs
 AUGMENT_IMAGES = False   # If True, augments images, if False, uses original images
@@ -37,7 +53,7 @@ if MNIST_DATA:
 else:
     TOTAL_LABELS = 13
 
-# Graph Specs
+# Statistical Graph Specs
 ANNOTATE = False                            # if True, annotates values above a certain accuracy, if False, no annotation
 ANNOTATE_LEVEL = 75                         # percentage at which to annotate
 COLOR_ACCURACY = ['#f15d29', '#37744a']     # green and blue line
@@ -46,7 +62,3 @@ PLOT_COST = True                            # if True, plot cost graph, if False
 FIG_WIDTH = 8                               # width for accuracy/cost figures
 FIG_HEIGHT = 6                              # height for accuracy/cost figures
 
-# Directories and Files
-PATH = getcwd()
-GRAPHS_DIR = PATH + '/accuracy_graphs/'  # directory for storing accuracy graphs
-REDUCED_DIR = PATH + '/reduced_images/'  # directory for storing reduced images
