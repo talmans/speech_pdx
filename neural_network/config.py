@@ -19,10 +19,10 @@ REDUCED_DIR = PATH + '/reduced_images/'  # directory for storing reduced images
 # Image Sources and Processing Specs
 TOMS_DATA = 'toms_graphs/'
 VIRA_ENV = 'envel08/'
-VIRA_SPECT = 'spec08/'
+VIRA_SPECT = 'specs08/'
 NUM1 = 'numbers1'
 NUM2 = 'numbers2'
-DATA_SOURCE = PATH + '/image_data/' + TOMS_DATA     # select directory for grabbing data from
+DATA_SOURCE = PATH + '/image_data/' + VIRA_SPECT     # select directory for grabbing data from
 GENERATE_RESIZED_IMAGES = True      # rescale the images
 SCALE_PERCENT = .6                  # scale image while maintaining aspect ratio
 
